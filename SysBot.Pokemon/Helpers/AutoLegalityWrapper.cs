@@ -35,7 +35,6 @@ namespace SysBot.Pokemon
             Legalizer.EnableEasterEggs = cfg.EnableEasterEggs;
             APILegality.AllowTrainerOverride = cfg.AllowTrainerDataOverride;
             APILegality.AllowBatchCommands = cfg.AllowBatchCommands;
-            APILegality.Timeout = cfg.Timeout;
         }
 
         private static void InitializeTrainerDatabase(LegalitySettings cfg)
@@ -78,12 +77,18 @@ namespace SysBot.Pokemon
             Util.SetLocalization(typeof(LegalityCheckStrings), lang);
             Util.SetLocalization(typeof(MessageStrings), lang);
             RibbonStrings.ResetDictionary(GameInfo.Strings.ribbons);
-            ParseSettings.ChangeLocalizationStrings(GameInfo.Strings.movelist, GameInfo.Strings.specieslist);
+            LegalityAnalysis.ChangeLocalizationStrings(GameInfo.Strings.movelist, GameInfo.Strings.specieslist);
         }
 
         public static bool CanBeTraded(this PKM pkm)
         {
-            return !AltFormInfo.IsFusedForm(pkm.Species, pkm.AltForm, pkm.Format);
+            return pkm.Species switch
+            {
+                (int)Species.Kyurem when pkm.AltForm != 0 => false,
+                (int)Species.Necrozma when pkm.AltForm != 0 => false,
+                (int)Species.Calyrex when pkm.AltForm != 0 => false,
+                _ => true
+            };
         }
 
         public static ITrainerInfo GetTrainerInfo(int gen) => TrainerSettings.GetSavedTrainerData(gen);

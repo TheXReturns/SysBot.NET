@@ -2,14 +2,9 @@
 
 namespace SysBot.Base
 {
-    /// <summary>
-    /// List of bots saved in the config.
-    /// </summary>
-    /// <typeparam name="T"></typeparam>
-    public class BotList<T> where T : IConsoleBotConfig
+    public class BotList<T> where T : SwitchBotConfig
     {
 #pragma warning disable CA1819 // Properties should not return arrays
-        /// <summary> Saved bots </summary>
         public T[] Bots { get; set; } = Array.Empty<T>();
 #pragma warning restore CA1819 // Properties should not return arrays
     }

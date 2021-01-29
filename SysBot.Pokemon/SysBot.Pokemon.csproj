@@ -2,13 +2,13 @@
 
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
-    <LangVersion>9</LangVersion>
+    <LangVersion>8</LangVersion>
     <Nullable>enable</Nullable>
     <Platforms>AnyCPU</Platforms>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="PKHeX.Core" Version="20.11.28" />
+    <PackageReference Include="PKHeX.Core" Version="20.10.11" />
     <ProjectReference Include="..\SysBot.Base\SysBot.Base.csproj" />
   </ItemGroup>
 

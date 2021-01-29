@@ -17,13 +17,13 @@ namespace SysBot.Pokemon.Discord
         public static SysCord Self = default!;
         public static DiscordManager Manager = default!;
         public static DiscordSettings Settings => Self.Hub.Config.Discord;
-        public static PokeBotRunner Runner = default!;
+        public static BotRunner<PokeBotConfig> Runner = default!;
     }
 
     public sealed class SysCord
     {
         private readonly DiscordSocketClient _client;
-        public readonly PokeTradeHub<PK8> Hub;
+        public PokeTradeHub<PK8> Hub;
 
         // Keep the CommandService and DI container around for use with commands.
         // These two types require you install the Discord.Net.Commands package.
@@ -166,7 +166,7 @@ namespace SysBot.Pokemon.Discord
         private async Task HandleMessageAsync(SocketMessage arg)
         {
             // Bail out if it's a System Message.
-            if (arg is not SocketUserMessage msg)
+            if (!(arg is SocketUserMessage msg))
                 return;
 
             // We don't want the bot to respond to itself or other bots.

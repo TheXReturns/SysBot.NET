@@ -17,7 +17,7 @@ namespace SysBot.Pokemon.Twitch
         private static PokeTradeHub<PK8> Hub = default!;
         internal static TradeQueueInfo<PK8> Info => Hub.Queues.Info;
 
-        internal static readonly List<TwitchQueue> QueuePool = new();
+        internal static readonly List<TwitchQueue> QueuePool = new List<TwitchQueue>();
         private readonly TwitchClient client;
         private readonly string Channel;
         private readonly TwitchSettings Settings;
@@ -42,7 +42,7 @@ namespace SysBot.Pokemon.Twitch
             };
 
             Channel = settings.Channel;
-            WebSocketClient customClient = new(clientOptions);
+            WebSocketClient customClient = new WebSocketClient(clientOptions);
             client = new TwitchClient(customClient);
 
             var cmd = settings.CommandPrefix;
@@ -202,7 +202,7 @@ namespace SysBot.Pokemon.Twitch
         private string HandleCommand(TwitchLibMessage m, string c, string args, bool whisper)
         {
             bool sudo() => m is ChatMessage ch && (ch.IsBroadcaster || Settings.IsSudo(m.Username));
-            bool subscriber() => m is ChatMessage {IsSubscriber: true};
+            bool subscriber() => m is ChatMessage ch && ch.IsSubscriber;
 
             switch (c)
             {

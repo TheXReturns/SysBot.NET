@@ -7,7 +7,7 @@ namespace SysBot.Pokemon.Discord
 {
     public static class NetUtil
     {
-        private static readonly WebClient webClient = new();
+        private static readonly WebClient webClient = new WebClient();
 
         public static async Task<byte[]> DownloadFromUrlAsync(string url)
         {

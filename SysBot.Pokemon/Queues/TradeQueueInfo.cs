@@ -8,8 +8,8 @@ namespace SysBot.Pokemon
 {
     public class TradeQueueInfo<T> where T : PKM, new()
     {
-        private readonly object _sync = new();
-        private readonly List<TradeEntry<T>> UsersInQueue = new();
+        private readonly object _sync = new object();
+        private readonly List<TradeEntry<T>> UsersInQueue = new List<TradeEntry<T>>();
         public readonly PokeTradeHub<T> Hub;
 
         public TradeQueueInfo(PokeTradeHub<T> hub) => Hub = hub;

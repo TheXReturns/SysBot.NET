@@ -4,11 +4,11 @@
     <TargetFramework>netstandard2.0</TargetFramework>
     <Platforms>AnyCPU</Platforms>
     <Nullable>enable</Nullable>
-    <LangVersion>9</LangVersion>
+    <LangVersion>8</LangVersion>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="PKHeX.Core" Version="20.11.28" />
+    <PackageReference Include="PKHeX.Core" Version="20.10.11" />
     <PackageReference Include="TwitchLib.Client" Version="3.1.5" />
   </ItemGroup>
 

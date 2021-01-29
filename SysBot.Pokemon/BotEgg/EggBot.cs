@@ -15,7 +15,7 @@ namespace SysBot.Pokemon
         private readonly int[] DesiredIVs;
         private const SwordShieldDaycare Location = SwordShieldDaycare.Route5;
 
-        public EggBot(PokeBotState cfg, PokeTradeHub<PK8> hub) : base(cfg)
+        public EggBot(PokeBotConfig cfg, PokeTradeHub<PK8> hub) : base(cfg)
         {
             Hub = hub;
             Counts = Hub.Counts;
@@ -28,15 +28,15 @@ namespace SysBot.Pokemon
         private const int InjectBox = 0;
         private const int InjectSlot = 0;
 
-        private static readonly PK8 Blank = new();
+        private static readonly PK8 Blank = new PK8();
 
-        public override async Task MainLoop(CancellationToken token)
+        protected override async Task MainLoop(CancellationToken token)
         {
-            Log("Identifying trainer data of the host console.");
+            
             await IdentifyTrainer(token).ConfigureAwait(false);
-
+            Log("Setting Current Box to Zero.");
             await SetCurrentBox(0, token).ConfigureAwait(false);
-
+            
             var existing = await ReadBoxPokemon(InjectBox, InjectSlot, token).ConfigureAwait(false);
             if (existing.Species != 0 && existing.ChecksumValid)
             {
@@ -52,22 +52,23 @@ namespace SysBot.Pokemon
             {
                 // Walk a step left, then right => check if egg was generated on this attempt.
                 // Repeat until an egg is generated.
-
+                
                 var attempts = await StepUntilEgg(token).ConfigureAwait(false);
                 if (attempts < 0) // aborted
                     continue;
 
                 Log($"Egg available after {attempts} attempts! Clearing destination slot.");
                 await SetBoxPokemon(Blank, InjectBox, InjectSlot, token).ConfigureAwait(false);
-
+                
                 for (int i = 0; i < 6; i++)
                     await Click(A, 0_400, token).ConfigureAwait(false);
 
                 // Safe to mash B from here until we get out of all menus.
+                
                 while (!await IsOnOverworld(Hub.Config, token).ConfigureAwait(false))
                     await Click(B, 0_400, token).ConfigureAwait(false);
 
-                Log("Egg received. Checking details.");
+                
                 var pk = await ReadBoxPokemon(InjectBox, InjectSlot, token).ConfigureAwait(false);
                 if (pk.Species == 0)
                 {
@@ -78,7 +79,7 @@ namespace SysBot.Pokemon
                 encounterCount++;
                 Log($"Encounter: {encounterCount}:{Environment.NewLine}{ShowdownSet.GetShowdownText(pk)}{Environment.NewLine}");
                 Counts.AddCompletedEggs();
-
+                
                 if (DumpSetting.Dump && !string.IsNullOrEmpty(DumpSetting.DumpFolder))
                     DumpPokemon(DumpSetting.DumpFolder, "egg", pk);
 
@@ -96,6 +97,7 @@ namespace SysBot.Pokemon
             }
 
             // If aborting the sequence, we might have the stick set at some position. Clear it just in case.
+            
             await SetStick(LEFT, 0, 0, 0, CancellationToken.None).ConfigureAwait(false); // reset
         }
 
@@ -106,11 +108,11 @@ namespace SysBot.Pokemon
             while (!token.IsCancellationRequested && Config.NextRoutineType == PokeRoutineType.EggFetch)
             {
                 await SetEggStepCounter(Location, token).ConfigureAwait(false);
-
+                
                 // Walk Diagonally Left
                 await SetStick(LEFT, -19000, 19000, 0_500, token).ConfigureAwait(false);
                 await SetStick(LEFT, 0, 0, 500, token).ConfigureAwait(false); // reset
-
+                
                 // Walk Diagonally Right, slightly longer to ensure we stay at the Daycare lady.
                 await SetStick(LEFT, 19000, 19000, 0_550, token).ConfigureAwait(false);
                 await SetStick(LEFT, 0, 0, 500, token).ConfigureAwait(false); // reset
@@ -122,7 +124,6 @@ namespace SysBot.Pokemon
                 attempts++;
                 if (attempts % 10 == 0)
                     Log($"Tried {attempts} times, still no egg.");
-
                 if (attempts > 10)
                     await Click(B, 500, token).ConfigureAwait(false);
             }

@@ -1,4 +1,5 @@
-﻿using System.ComponentModel;
+﻿using SysBot.Base;
+using System.ComponentModel;
 
 // ReSharper disable AutoPropertyCanBeMadeGetOnly.Global
 
@@ -23,79 +24,79 @@ namespace SysBot.Pokemon
 
         [Category(Operation)]
         [TypeConverter(typeof(ExpandableObjectConverter))]
-        public CountSettings Counts { get; set; } = new();
+        public CountSettings Counts { get; set; } = new CountSettings();
 
         [Category(Operation)]
         [TypeConverter(typeof(ExpandableObjectConverter))]
-        public LegalitySettings Legality { get; set; } = new();
+        public LegalitySettings Legality { get; set; } = new LegalitySettings();
 
         [Category(Operation)]
         [TypeConverter(typeof(ExpandableObjectConverter))]
-        public FolderSettings Folder { get; set; } = new();
+        public FolderSettings Folder { get; set; } = new FolderSettings();
 
         [Category(Operation)]
         [TypeConverter(typeof(ExpandableObjectConverter))]
-        public QueueSettings Queues { get; set; } = new();
+        public QueueSettings Queues { get; set; } = new QueueSettings();
 
         [Category(Operation), Description("Stop conditions for EggBot, FossilBot, and EncounterBot.")]
         [TypeConverter(typeof(ExpandableObjectConverter))]
-        public StopConditionSettings StopConditions { get; set; } = new();
+        public StopConditionSettings StopConditions { get; set; } = new StopConditionSettings();
 
         [Category(Operation), Description("Add extra time for slower Switches.")]
         [TypeConverter(typeof(ExpandableObjectConverter))]
-        public TimingSettings Timings { get; set; } = new();
+        public TimingSettings Timings { get; set; } = new TimingSettings();
 
         // Bots
 
         [Category(Bots)]
         [TypeConverter(typeof(ExpandableObjectConverter))]
-        public TradeSettings Trade { get; set; } = new();
+        public TradeSettings Trade { get; set; } = new TradeSettings();
 
         [Category(Bots)]
         [TypeConverter(typeof(ExpandableObjectConverter))]
-        public SeedCheckSettings SeedCheck { get; set; } = new();
+        public SeedCheckSettings SeedCheck { get; set; } = new SeedCheckSettings();
 
         [Category(Bots), Description("Settings for idle distribution trades.")]
         [TypeConverter(typeof(ExpandableObjectConverter))]
-        public DistributionSettings Distribution { get; set; } = new();
+        public DistributionSettings Distribution { get; set; } = new DistributionSettings();
 
         [Category(Bots)]
         [TypeConverter(typeof(ExpandableObjectConverter))]
-        public RaidSettings Raid { get; set; } = new();
+        public RaidSettings Raid { get; set; } = new RaidSettings();
 
         [Category(Bots)]
         [TypeConverter(typeof(ExpandableObjectConverter))]
-        public EggSettings Egg { get; set; } = new();
+        public EggSettings Egg { get; set; } = new EggSettings();
 
         [Category(Bots)]
         [TypeConverter(typeof(ExpandableObjectConverter))]
-        public FossilSettings Fossil { get; set; } = new();
+        public FossilSettings Fossil { get; set; } = new FossilSettings();
 
         [Category(Bots)]
         [TypeConverter(typeof(ExpandableObjectConverter))]
-        public EncounterSettings Encounter { get; set; } = new();
+        public EncounterSettings Encounter { get; set; } = new EncounterSettings();
 
         // Integration
 
         [Category(Integration)]
         [TypeConverter(typeof(ExpandableObjectConverter))]
-        public DiscordSettings Discord { get; set; } = new();
+        public DiscordSettings Discord { get; set; } = new DiscordSettings();
 
         [Category(Integration)]
         [TypeConverter(typeof(ExpandableObjectConverter))]
-        public TwitchSettings Twitch { get; set; } = new();
+        public TwitchSettings Twitch { get; set; } = new TwitchSettings();
 
         [Category(Integration)]
         [TypeConverter(typeof(ExpandableObjectConverter))]
-        public YouTubeSettings YouTube { get; set; } = new();
+        public YouTubeSettings YouTube { get; set; } = new YouTubeSettings();
 
         [Category(Integration), Description("Allows favored users to join the queue with a more favorable position than unfavored users.")]
         [TypeConverter(typeof(ExpandableObjectConverter))]
-        public FavoredPrioritySettings Favoritism { get; set; } = new();
+        public FavoredPrioritySettings Favoritism { get; set; } = new FavoredPrioritySettings();
 
         [Category(Integration), Description("Configure generation of assets for streaming.")]
         [TypeConverter(typeof(ExpandableObjectConverter))]
-        public StreamSettings Stream { get; set; } = new();
+        public StreamSettings Stream { get; set; } = new StreamSettings();
 
         [Category(Debug), Description("Skips creating bots when the program is started; helpful for testing integrations.")]
         public bool SkipConsoleBotCreation { get; set; }

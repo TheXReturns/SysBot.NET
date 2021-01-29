@@ -11,9 +11,9 @@ using static SysBot.Pokemon.PokeDataOffsets;
 
 namespace SysBot.Pokemon
 {
-    public abstract class PokeRoutineExecutor : SwitchRoutineExecutor<PokeBotState>
+    public abstract class PokeRoutineExecutor : SwitchRoutineExecutor<PokeBotConfig>
     {
-        protected PokeRoutineExecutor(PokeBotState cfg) : base(cfg) { }
+        protected PokeRoutineExecutor(PokeBotConfig cfg) : base(cfg) { }
 
         public LanguageID GameLang { get; private set; }
         public GameVersion Version { get; private set; }
@@ -123,8 +123,8 @@ namespace SysBot.Pokemon
             GameLang = (LanguageID)sav.Language;
             Version = sav.Version;
             InGameName = sav.OT;
-            Connection.Label = $"{InGameName}-{sav.DisplayTID:000000}";
-            Log($"{Connection.Name} identified as {Connection.Label}, using {GameLang}.");
+            Connection.Name = $"{InGameName}-{sav.DisplayTID:000000}";
+            Log($"{Connection.IP} identified as {Connection.Name}, using {GameLang}.");
 
             if (await GetTextSpeed(token).ConfigureAwait(false) != TextSpeedOption.Fast)
                 Log("Text speed should be set to FAST. Stop the bot and fix this if you encounter problems.");
@@ -140,7 +140,6 @@ namespace SysBot.Pokemon
             Directory.CreateDirectory(dir);
             var fn = Path.Combine(dir, Util.CleanFileName(pk.FileName));
             File.WriteAllBytes(fn, pk.DecryptedPartyData);
-            LogUtil.LogInfo($"Saved file: {fn}", "Dump");
         }
 
         /// <summary>
@@ -155,12 +154,12 @@ namespace SysBot.Pokemon
             return sav;
         }
 
-        protected async Task EnterTradeCode(int code, PokeTradeHubConfig config, CancellationToken token)
+        protected async Task EnterTradeCode(int code, CancellationToken token)
         {
             var keys = TradeUtil.GetPresses(code);
             foreach (var key in keys)
             {
-                int delay = config.Timings.KeypressTime;
+                const int delay = 0_500;
                 await Click(key, delay, token).ConfigureAwait(false);
             }
             // Confirm Code outside of this method (allow synchronization)
@@ -295,41 +294,42 @@ namespace SysBot.Pokemon
         public async Task CloseGame(PokeTradeHubConfig config, CancellationToken token)
         {
             // Close out of the game
-            await Click(HOME, 2_000 + config.Timings.ExtraTimeReturnHome, token).ConfigureAwait(false);
+            await Click(HOME, 1_000 + config.Timings.ExtraTimeReturnHome, token).ConfigureAwait(false);
             await Click(X, 1_000, token).ConfigureAwait(false);
-            await Click(A, 5_000 + config.Timings.ExtraTimeCloseGame, token).ConfigureAwait(false);
+            await Click(A, 3_000 + config.Timings.ExtraTimeCloseGame, token).ConfigureAwait(false);
             Log("Closed out of the game!");
         }
 
         public async Task StartGame(PokeTradeHubConfig config, CancellationToken token)
         {
-            // Open game.
-            await Click(A, 1_000 + config.Timings.ExtraTimeLoadProfile, token).ConfigureAwait(false);
-
-            // Menus here can go in the order: Update Prompt -> Profile -> DLC check -> Unable to use DLC.
-            //  The user can optionally turn on the setting if they know of a breaking system update incoming.
-            if (config.Timings.AvoidSystemUpdate)
-            {
-                await Click(DUP, 0_600, token).ConfigureAwait(false);
-                await Click(A, 1_000 + config.Timings.ExtraTimeLoadProfile, token).ConfigureAwait(false);
-            }
-
-            await Click(A, 1_000 + config.Timings.ExtraTimeCheckDLC, token).ConfigureAwait(false);
-            // If they have DLC on the system and can't use it, requires an UP + A to start the game.
-            // Should be harmless otherwise since they'll be in loading screen.
-            await Click(DUP, 0_600, token).ConfigureAwait(false);
-            await Click(A, 0_600, token).ConfigureAwait(false);
+            // Open game and select profile.
+            await Click(A, 2_000 + config.Timings.ExtraTimeLoadProfile, token).ConfigureAwait(false);
+            await Click(A, 2_000 + config.Timings.ExtraTimeCheckDLC, token).ConfigureAwait(false);
+            
 
             Log("Restarting the game!");
 
             // Switch Logo lag, skip cutscene, game load screen
-            await Task.Delay(10_000 + config.Timings.ExtraTimeLoadGame, token).ConfigureAwait(false);
-
-            for (int i = 0; i < 5; i++)
-                await Click(A, 1_000, token).ConfigureAwait(false);
-
+            await Task.Delay(7_000 + config.Timings.ExtraTimeLoadGame, token).ConfigureAwait(false);
             while (!await IsOnOverworld(config, token).ConfigureAwait(false))
-                await Task.Delay(2_000, token).ConfigureAwait(false);
+                await Click(A, 0_500, token).ConfigureAwait(false);
+
+            Log("Back in the overworld!");
+        }
+
+        public async Task StartGameSlow(PokeTradeHubConfig config, CancellationToken token)
+        {
+            // Open game and select profile.
+            await Click(A, 2_000 + config.Timings.ExtraTimeLoadProfile, token).ConfigureAwait(false);
+            await Click(A, 2_000 + config.Timings.ExtraTimeCheckDLC, token).ConfigureAwait(false);
+
+
+            Log("Restarting the game!");
+
+            // Switch Logo lag, skip cutscene, game load screen
+            await Task.Delay(9_000 + config.Timings.ExtraTimeLoadGame, token).ConfigureAwait(false);
+            while (!await IsOnOverworld(config, token).ConfigureAwait(false))
+                await Click(A, 2_000, token).ConfigureAwait(false);
 
             Log("Back in the overworld!");
         }

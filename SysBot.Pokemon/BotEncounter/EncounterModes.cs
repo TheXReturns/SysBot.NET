@@ -13,9 +13,24 @@
         HorizontalLine,
 
         /// <summary>
-        /// Bot will soft reset Eternatus
+        /// Bot will soft reset Eternatus.
         /// </summary>
         Eternatus,
+
+        /// <summary>
+        /// Bot will soft reset Regi Titans.
+        /// </summary>
+        Regi,
+
+        /// <summary>
+        /// Bot will soft reset Regigigas.
+        /// </summary>
+        Giga,
+
+        /// <summary>
+        /// Bot will soft reset Galarian Articuno and Galarian Zapdos.
+        /// </summary>
+        IceThunder,
 
         /// <summary>
         /// Bot will soft reset the Legendary Dogs

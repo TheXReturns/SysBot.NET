@@ -1,9 +1,7 @@
-﻿using System;
-using PKHeX.Core;
+﻿using PKHeX.Core;
 using SysBot.Base;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 
 namespace SysBot.Pokemon
 {
@@ -51,7 +49,7 @@ namespace SysBot.Pokemon
             return LoadFolder(Settings.Folder.DistributeFolder);
         }
 
-        public readonly Dictionary<string, LedyRequest<T>> Files = new();
+        public readonly Dictionary<string, LedyRequest<T>> Files = new Dictionary<string, LedyRequest<T>>();
 
         public bool LoadFolder(string path)
         {
@@ -69,14 +67,10 @@ namespace SysBot.Pokemon
             {
                 var data = File.ReadAllBytes(file);
                 var pkm = PKMConverter.GetPKMfromBytes(data);
-                if (pkm is null)
-                    continue;
-                if (pkm is not T)
-                    pkm = PKMConverter.ConvertToType(pkm, typeof(T), out _);
-                if (pkm is not T dest)
+                if (!(pkm is T dest))
                     continue;
 
-                if (dest.Species == 0 || dest is not PK8 pk8)
+                if (dest.Species == 0 || !(dest is PK8 pk8))
                 {
                     LogUtil.LogInfo("SKIPPED: Provided pk8 is not valid: " + dest.FileName, nameof(PokemonPool<T>));
                     continue;
@@ -89,14 +83,14 @@ namespace SysBot.Pokemon
                 }
 
                 var la = new LegalityAnalysis(pk8);
-                if (!la.Valid)
+                if (!la.Valid && Settings.Legality.VerifyLegality)
                 {
                     var reason = la.Report();
                     LogUtil.LogInfo($"SKIPPED: Provided pk8 is not legal: {dest.FileName} -- {reason}", nameof(PokemonPool<T>));
                     continue;
                 }
 
-                if (DisallowSurpriseTrade(pk8, la.EncounterMatch))
+                if (DisallowSurpriseTrade(pk8))
                 {
                     LogUtil.LogInfo("Provided pk8 was loaded but can't be Surprise Traded: " + dest.FileName, nameof(PokemonPool<T>));
                     surpriseBlocked++;
@@ -121,54 +115,16 @@ namespace SysBot.Pokemon
                 loadedAny = true;
             }
 
-            // Anti-spam: Same trainer names.
-            if (Files.Count != 1 && Files.Select(z => z.Value.RequestInfo.OT_Name).Distinct().Count() == 1)
-            {
-                LogUtil.LogInfo("Provided pool to distribute has the same OT for all loaded. Pool is not valid; please distribute from a variety of trainers.", nameof(PokemonPool<T>));
-                surpriseBlocked = Count;
-                Files.Clear();
-            }
-
             if (surpriseBlocked == Count)
                 LogUtil.LogInfo("Surprise trading will fail; failed to load any compatible files.", nameof(PokemonPool<T>));
 
             return loadedAny;
         }
 
-        private static bool DisallowSurpriseTrade(PKM pk, IEncounterable enc)
+        private static bool DisallowSurpriseTrade(PK8 pk8)
         {
-            // Anti-spam
-            if (pk.IsNicknamed && !(enc is EncounterTrade {IsNicknamed: true}) && pk.Nickname.Length > 6)
-                return true;
-            return DisallowSurpriseTrade(pk);
-        }
-
-        private static bool DisallowSurpriseTrade(PKM pk)
-        {
-            // Anti-spam
-            if (IsSpammyString(pk.OT_Name))
-                return true;
-
             // Surprise Trade currently bans Mythicals and Legendaries, not Sub-Legendaries.
-            if (Legal.Legends.Contains(pk.Species))
-                return true;
-
-            // Can't surprise trade fused stuff.
-            if (AltFormInfo.IsFusedForm(pk.Species, pk.AltForm, pk.Format))
-                return true;
-
-            return false;
-        }
-
-        private static bool IsSpammyString(string name)
-        {
-            if (name.IndexOf('.') >= 0 || name.IndexOf('\\') >= 0 || name.IndexOf('/') >= 0)
-                return true;
-
-            if (name.Length <= 6)
-                return false;
-
-            return name.IndexOf("pkm", StringComparison.OrdinalIgnoreCase) >= 0;
+            return Legal.Legends.Contains(pk8.Species);
         }
     }
 }

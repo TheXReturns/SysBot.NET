@@ -5,11 +5,11 @@ namespace SysBot.Pokemon
 {
     public class RemoteControlBot : PokeRoutineExecutor
     {
-        public RemoteControlBot(PokeBotState cfg) : base(cfg)
+        public RemoteControlBot(PokeBotConfig cfg) : base(cfg)
         {
         }
 
-        public override async Task MainLoop(CancellationToken token)
+        protected override async Task MainLoop(CancellationToken token)
         {
             Log("Identifying trainer data of the host console.");
             await IdentifyTrainer(token).ConfigureAwait(false);
